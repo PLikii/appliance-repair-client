@@ -5,9 +5,11 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useState } from "react";
 import { RxUpdate } from "react-icons/rx";
+import { Link } from "react-router-dom";
+import Loading from "../../components/Loading";
 
 function CreateOrder() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(flse);
 
   const navigate = useNavigate();
   const formik = useFormik({
@@ -80,38 +82,29 @@ function CreateOrder() {
 
   return (
     <div>
-      {isLoading ? (
-        <div className=" fixed w-full h-screen bg-dark/60  ">
-          <div className=" flex justify-center mt-16">
-            <div className=" space-y-4">
-              <div className=" flex justify-center ">
-                <RxUpdate size={30} className=" animate-spin" fill="white" />
-              </div>
-              <div>Замавлення створеється</div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        ""
-      )}
+      {isLoading ? <Loading text="Замавлення створеється" /> : ""}
 
       <div className="py-7 px-10 lg:flex items-center justify-between space-y-10 lg:space-y-0">
-        <div className="space-y-3 font-bold ">
-          <div className="text-4xl">appliance repair</div>
+        <div className=" font-bold ">
+          <Link to="/">
+            <div className="space-y-3 font-bold ">
+              <div className="text-4xl">appliance repair</div>
 
-          <div className=" text-h2 text-2xl text-right">тернопіль</div>
+              <div className=" text-h2 text-2xl text-right">тернопіль</div>
+            </div>
+          </Link>
         </div>
       </div>
 
       <div className=" flex justify-center text-center  ">
-        <div className=" space-y-10">
+        <div className=" space-y-6">
           <div>
             <div className="text-lg lg:text-4xl">Оформлення замовлення </div>
           </div>
 
-          <form onSubmit={formik.handleSubmit} className=" space-y-10 ">
+          <form onSubmit={formik.handleSubmit} className=" space-y-8 ">
             <div className=" lg:flex lg:space-x-10 space-y-10 lg:space-y-0">
-              <div className=" space-y-8">
+              <div className=" space-y-6">
                 <div className=" text-left space-y-3">
                   <div>Адрес</div>
                   <input
@@ -178,7 +171,8 @@ function CreateOrder() {
                 <div>Опис проблеми</div>
                 <div>
                   <textarea
-                    className=" w-64 lg:w-96 h-44 bg-dark p-3"
+                    className=" w-64 lg:w-96 min-h-44 h-80 max-h-96 bg-dark p-3 "
+                    maxLength={525}
                     id="description"
                     name="description"
                     type="text"
