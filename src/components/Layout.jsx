@@ -2,9 +2,13 @@ import React, { useContext, useEffect } from "react";
 import Sidebar from "./sidebar/Sidebar";
 import { AuthContext } from "../context/AuthContext";
 import Loading from "./Loading";
+import { Navigate } from "react-router-dom";
 
 function Layout({ child }) {
-  const { profile, refreshProfile, isLoading } = useContext(AuthContext);
+  const { refreshProfile, isLoading } = useContext(AuthContext);
+
+  if (localStorage.getItem("key") === null)
+    return <Navigate to="/login" replace />;
 
   useEffect(() => {
     refreshProfile();

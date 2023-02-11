@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import PropTypes from "prop-types";
 import axios from "axios";
 import { AuthContext } from "./AuthContext";
+import { Navigate } from "react-router-dom";
 
 function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
