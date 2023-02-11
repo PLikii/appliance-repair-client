@@ -9,6 +9,8 @@ module.exports = {
       border_button: "#1E293B",
       h2: "#2CB67D",
       text: "#FFFFFF",
+      yellow: "#F4CE2C",
+      read: "#EE352C",
     },
     extend: {},
   },

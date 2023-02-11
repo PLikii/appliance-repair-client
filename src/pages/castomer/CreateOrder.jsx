@@ -4,12 +4,11 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useState } from "react";
-import { RxUpdate } from "react-icons/rx";
 import { Link } from "react-router-dom";
 import Loading from "../../components/Loading";
 
 function CreateOrder() {
-  const [isLoading, setIsLoading] = useState(flse);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
   const formik = useFormik({
@@ -68,6 +67,7 @@ function CreateOrder() {
         })
         .then((res) => {
           toast.success("Замовлення успішно створене", res.data);
+
           return navigate("/");
         })
         .catch((e) => {
@@ -75,14 +75,13 @@ function CreateOrder() {
         })
         .finally(() => {
           setIsLoading(false);
-          toast.dismiss();
         });
     },
   });
 
   return (
     <div>
-      {isLoading ? <Loading text="Замавлення створеється" /> : ""}
+      {isLoading ? <Loading text="Замовлення створюється" /> : ""}
 
       <div className="py-7 px-10 lg:flex items-center justify-between space-y-10 lg:space-y-0">
         <div className=" font-bold ">
