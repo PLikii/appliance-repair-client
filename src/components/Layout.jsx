@@ -14,7 +14,7 @@ function Layout({ child }) {
     refreshProfile();
   }, []);
 
-  if (isLoading) return <Loading text=" провіль завантажеється" />;
+  if (isLoading) return <Loading text=" профіль завантажеється" />;
   return (
     <div className=" flex   h-screen w-screen">
       <div className="">

@@ -2,7 +2,7 @@ import { RxUpdate } from "react-icons/rx";
 
 function Loading({ text }) {
   return (
-    <div className=" fixed w-full h-screen bg-dark/60  ">
+    <div className=" fixed w-full h-screen bg-gray/30  ">
       <div className=" flex justify-center mt-16">
         <div className=" space-y-4">
           <div className=" flex justify-center ">

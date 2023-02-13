@@ -11,7 +11,7 @@ function OrderConfirm({ orders, setIsReload, reload }) {
   const { id } = useParams();
   const order = orders[id];
   const [workers, setWorkers] = useState();
-  const [freeTime, setFreeTime] = useState([]);
+  const [freeTime, setFreeTime] = useState(["Виберіть дату і техніка"]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -45,6 +45,8 @@ function OrderConfirm({ orders, setIsReload, reload }) {
       if (data.worker === "") return alert("Виберіть пріцівника");
       if (data.date === "") return alert("Виберіть дату");
       if (data.time === "") return alert("Ви не вибрали час");
+      if (data.worker === "Виберіть дату і техніка")
+        return alert("Виберіть дату і техніка");
       setIsLoading(true);
       axios
         .post("http://127.0.0.1:5000/order/confirm", data, {
@@ -111,6 +113,7 @@ function OrderConfirm({ orders, setIsReload, reload }) {
             "У даного працівника немає усі години на цей день зайняті"
           );
         }
+        toast(res.data);
         setFreeTime(res.data);
       })
       .catch((e) => {

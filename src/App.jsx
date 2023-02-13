@@ -8,6 +8,7 @@ import NotFoundPage from "./pages/error/NotFoundPage";
 import CreateOrder from "./pages/castomer/CreateOrder";
 import LogIn from "./pages/LogIn";
 import ConfirmOrders from "./pages/maneger/ConfirmOrders";
+import ActiveOrders from "./pages/maneger/ActiveOrders";
 
 function App() {
   return (
@@ -18,6 +19,10 @@ function App() {
           <Route
             path="/manager/confirmOrders/:id"
             element={<Layout child={<ConfirmOrders />} />}
+          />
+          <Route
+            path="/manager/activeOrders/:id"
+            element={<Layout child={<ActiveOrders />} />}
           />
           <Route path="/" element={<About />} />
           <Route path="/сreateOrder" element={<CreateOrder />} />

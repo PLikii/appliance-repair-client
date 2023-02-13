@@ -8,7 +8,7 @@ module.exports = {
       blue: "#2C66C3",
       border_button: "#1E293B",
       h2: "#2CB67D",
-      text: "#FFFFFF",
+      white: "#FFFFFF",
       yellow: "#F4CE2C",
       read: "#EE352C",
     },

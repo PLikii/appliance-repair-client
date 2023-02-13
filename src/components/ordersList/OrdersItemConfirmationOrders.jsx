@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-function OrdersItemConfirmationOrders({ id, adres, phon_namber, index }) {
+function OrdersItemConfirmationOrders({ order, index }) {
   const navigate = useNavigate();
   const active = window.location.pathname === `/manager/confirmOrders/${index}`;
 
@@ -14,8 +14,10 @@ function OrdersItemConfirmationOrders({ id, adres, phon_namber, index }) {
         navigate(`/manager/confirmOrders/${index}`);
       }}
     >
-      <div className={`${active ? " text-text" : " text-blue"}`}>{adres}</div>
-      <div>+ {phon_namber}</div>
+      <div className={`${active ? " text-white" : " text-blue"}`}>
+        {order.customer_adres}
+      </div>
+      <div>+ {order.customer_namber}</div>
     </div>
   );
 }

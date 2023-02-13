@@ -14,7 +14,7 @@ function CreateOrder() {
   const formik = useFormik({
     initialValues: {
       customer_name: "",
-      customer_address: "",
+      customer_adres: "",
       customer_namber: "",
       technic_type: "",
       description: "",
@@ -25,7 +25,7 @@ function CreateOrder() {
         status: "Очікує підтвердження",
         technic_type: values.technic_type,
         customer_name: values.customer_name,
-        customer_address: values.customer_address,
+        customer_adres: values.customer_adres,
         customer_namber: values.customer_namber,
         description: values.description,
         date: "",
@@ -36,7 +36,7 @@ function CreateOrder() {
         accessories: [
           {
             name: "Діагностика",
-            "price ": "50",
+            price: "50",
           },
         ],
       };
@@ -47,14 +47,11 @@ function CreateOrder() {
       if (data.customer_name === "") {
         return toast.error("Ви не увели ім'я та прізфище");
       }
-      if (data.customer_address === "") {
+      if (data.customer_adres === "") {
         return toast.error("Ви не увели адрес");
       }
       if (data.customer_namber === "") {
         return toast.error("Ви не увели мобільний номер");
-      }
-      if (data.customer_namber.length < 10) {
-        return toast.error("Мобільний номер занадто короткий");
       }
       if (data.description === "")
         return toast.error("Ви не увели опис проблеми");
@@ -108,12 +105,12 @@ function CreateOrder() {
                   <div>Адрес</div>
                   <input
                     className=" w-64 lg:w-96 bg-dark py-2 px-3 rounded-lg "
-                    id="customer_address"
-                    name="customer_address"
+                    id="customer_adres"
+                    name="customer_adres"
                     type="text"
                     placeholder="Адрес"
                     onChange={formik.handleChange}
-                    value={formik.values.customer_address}
+                    value={formik.values.customer_adres}
                   />
                 </div>
 
@@ -153,7 +150,7 @@ function CreateOrder() {
                     onChange={formik.handleChange}
                     value={formik.values.technic_type}
                   >
-                    <option defaultValue="" disabled selected hidden>
+                    <option value="" disabled selected hidden>
                       Тип техніки
                     </option>
                     <option value="Холодильник">Холодильник</option>

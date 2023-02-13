@@ -14,7 +14,7 @@ function SidebarItem({ icon, title, route }) {
         active ? "  bg-blue" : " bg-border_button"
       }`}
       onClick={() => {
-        navigate(route);
+        navigate(`${route}/0`);
       }}
     >
       <div className="text-xl">{icon ?? ""}</div>

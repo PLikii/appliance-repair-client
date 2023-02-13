@@ -2,7 +2,6 @@ from flask import Flask, Response, request, redirect, jsonify, make_response
 from bson.json_util import dumps
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-import pprint
 import urllib
 import hashlib
 from flask_cors import CORS
@@ -12,27 +11,8 @@ db = client.local
 workers = db.workers
 orders = db.orders
 
-
-def addWorker(worker):
-    worker_id = workers.insert_one(worker).inserted_id
-    print(worker_id)
-
-
-def getOWorkersFormId(id):
-    return workers.find_one({'_id': ObjectId(id)})
-
-
-def addOrder(order):
-    order_id = orders.insert_one(order).inserted_id
-    print(order_id)
-
-
-def getOrders():
-    return dumps(orders.find(), ensure_ascii=False)
-
-
-def getOrdersFormId(id):
-    return orders.find_one({'_id': ObjectId(id)})
+app = Flask(__name__)
+CORS(app)
 
 
 def checkKey(request):
@@ -50,17 +30,9 @@ def checkKey(request):
         return "invalid key"
 
 
-app = Flask(__name__)
-CORS(app)
-
-
 @ app.route("/")
 def main():
     return Response(dumps({"status": "200"}, ensure_ascii=False))
-
-# Order #
-
-# створити замовелння
 
 
 @ app.route("/user", methods=['GET'])
@@ -68,21 +40,21 @@ def getUser():
     headers = request.headers
     bearer = headers.get('Authorization')
     key = bearer.split()[1]
-    print("/user  ok", key)
-    print(request.method)
     user = workers.find_one({"key": key})
-    print("/user  ok", key)
     return Response(dumps(user, ensure_ascii=False))
 
 
 @ app.route("/workers/technician", methods=['GET'])
 def getWorkers():
 
-    print("/workers/technician  OK")
     return Response(dumps(workers.find(
         {"job_title": "technician"}), ensure_ascii=False))
 
-# створити замовелння
+
+@ app.route("/workers/byID", methods=['POST'])
+def getWorkersByID():
+    return Response(dumps(workers.find_one(
+        {"_id": ObjectId(request.json["id"])}), ensure_ascii=False))
 
 
 @ app.route("/workers/day/orders", methods=['POST'])
@@ -99,36 +71,29 @@ def dayOrder():
     id_worker = request.json["id"]
     date = request.json["date"]
     results = orders.find({"id_worker": ObjectId(id_worker), "date": date})
-    for ti in time:
-        for result in results:
-            if result["time"] == ti:
-                time.remove(ti)
-                print(ti)
-    print(time)
+    for e in results:
+        time.remove(e["time"])
 
     return Response(dumps(time))
 
 
 @ app.route("/order", methods=['POST', 'GET', 'DELETE'])
 def createOrder():
-    print(request.method)
-    print("order")
 
     if request.method == 'GET':
-        if not checkKey(request):
-            print("/order  GET OK")
-            return Response(getOrders())
+        if checkKey(request):
+            return Response(checkKey(request))
+        return Response(dumps(orders.find({"status": {"$in": ["Діагностика", "Виконується"]}}), ensure_ascii=False))
 
-        return Response(checkKey(request))
     if request.method == 'POST':
-        addOrder(request.json["data"])
+        orders.insert_one(request.json["data"]).inserted_id
         return Response("confirm")
 
     if request.method == 'DELETE':
         if checkKey(request):
             return Response(checkKey(request))
-        print((request.json))
-        orders.delete_one({"_id": getOrdersFormId(request.json["_id"])})
+        orders.delete_one({"_id": orders.find_one(
+            {'_id': ObjectId(request.json["_id"])})})
         return Response("confirm")
 
     return Response("error")
@@ -152,8 +117,6 @@ def activeOrder():
 
 @ app.route("/order/delete", methods=['POST'])
 def deleteOrder():
-    print(request.method)
-    print(request.json)
 
     orders.delete_one({"_id": ObjectId(request.json["id"])})
     return Response("confirm")
@@ -161,22 +124,16 @@ def deleteOrder():
 
 @ app.route("/order/unconfirmedOrder", methods=['GET'])
 def getUnconfirmedOrder():
-    print(request.method)
     if checkKey(request):
         return Response(checkKey(request))
 
     if request.method == 'GET':
         if not checkKey(request):
-            print("/order/unconfirmedOrder   OK")
             return Response(dumps(orders.find({"status": "Очікує підтвердження"}), ensure_ascii=False))
 
         return Response(checkKey(request))
 
-    print("/order/unconfirmedOrder    ERROR")
     return Response("error")
-
-
-# оновии замовелння
 
 
 @ app.route("/order/update", methods=['POST'])
@@ -186,7 +143,7 @@ def updateOrder():
 
     json = request.json
     order_id = json["order_id"]["$oid"]
-    order = getOrdersFormId(order_id)
+    order = orders.find_one({'_id': ObjectId(order_id)})
 
     if json["parameter_name"] == "id_worker":
         order[json["parameter_name"]] = json["new_walue"]
@@ -195,7 +152,6 @@ def updateOrder():
         return Response("successfully")
     else:
         order[json["parameter_name"]] = json["new_walue"]
-        print(order[json["parameter_name"]])
         orders.update_one({'_id': ObjectId(order_id)}, {
             "$set": {json["parameter_name"]: order[json["parameter_name"]]}})
         return Response("successfully")
@@ -203,10 +159,8 @@ def updateOrder():
     return Response("error")
 
 
-# /order/confirm"
 @ app.route("/order/confirm", methods=['POST'])
 def confirmOrder():
-    print(request.json)
     if checkKey(request):
         return Response(checkKey(request))
 
@@ -231,7 +185,6 @@ def confirmOrder():
     return Response("confirm")
 
 
-# витрати на росхоники
 @ app.route("/order/accessories", methods=['POST', 'DELETE'])
 def accessoriesOrder():
     if checkKey(request):
@@ -239,7 +192,7 @@ def accessoriesOrder():
 
     json = request.json
     order_id = json["order_id"]["$oid"]
-    order = getOrdersFormId(order_id)
+    order = orders.find_one({'_id': ObjectId(order_id)})
 
     if request.method == 'POST':
         order["accessories"] = order["accessories"] + json["accessories"]
@@ -258,7 +211,6 @@ def accessoriesOrder():
     return Response("error")
 
 
-# log in
 @ app.route("/login", methods=['GET', 'POST'])
 def logIn():
     json = request.json
@@ -272,9 +224,7 @@ def logIn():
         "$set": {"key": key}})
     user = workers.find_one({"login": login, "password": password})
     if not user:
-        print("/login ERROR")
         return Response("error")
-    print("/logi GET OK ", user)
     return Response(dumps(user))
 
 
