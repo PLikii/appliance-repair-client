@@ -10,9 +10,9 @@ function CreateWorker() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!localStorage.getItem("key")) navigate("/");
-  }, []);
+  //useEffect(() => {
+  //if (!localStorage.getItem("key")) navigate("/");
+  //}, []);
 
   const formik = useFormik({
     initialValues: {
