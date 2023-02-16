@@ -3,13 +3,11 @@ import { useFormik } from "formik";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import Loading from "../../components/Loading";
-import { AuthContext } from "../../context/AuthContext";
 
 function CreateWorker() {
   const [isLoading, setIsLoading] = useState(false);
-  const { profile, refreshProfile } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
