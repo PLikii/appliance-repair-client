@@ -17,10 +17,10 @@ function Layout({ child }) {
   if (isLoading) return <Loading text=" профіль завантажеється" />;
   return (
     <div className=" flex   h-screen w-screen">
-      <div className="">
+      <div className=" w-[400px]">
         <Sidebar />
       </div>
-      <div>{child}</div>
+      <div className=" w-full">{child}</div>
     </div>
   );
 }

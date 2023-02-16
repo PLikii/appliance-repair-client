@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { AiOutlineDelete } from "react-icons/ai";
-import { FiEdit3 } from "react-icons/fi";
 import Loading from "./Loading";
 
 function OrdersActive({ orders, setIsReload, reload }) {
@@ -11,6 +10,7 @@ function OrdersActive({ orders, setIsReload, reload }) {
   const [worker, setWorker] = useState({ name_surname: "" });
   const { id } = useParams();
   const order = orders.find((e) => e._id.$oid === id);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setIsLoading(true);
@@ -46,6 +46,8 @@ function OrdersActive({ orders, setIsReload, reload }) {
           if (res.data === "confirm") {
             toast.success("Замовлення успішно підтверджене");
             setIsReload(!reload);
+            navigate("/manager/activeOrders/0");
+            window.location.reload(false);
           }
         })
         .catch((e) => {
@@ -61,9 +63,7 @@ function OrdersActive({ orders, setIsReload, reload }) {
   return (
     <div className=" text-xl space-y-6  min-w-[850px] fixed  overflow-y-clip">
       <div className="flex w-full justify-around py-2">
-        <div className=" cursor-pointer">
-          <FiEdit3 size={30} />
-        </div>
+        <div></div>
         <div className=" text-center">ID: {order._id.$oid}</div>
         <div className=" cursor-pointer" onClick={deleteOrder}>
           <AiOutlineDelete size={30} />
@@ -71,7 +71,7 @@ function OrdersActive({ orders, setIsReload, reload }) {
       </div>
 
       <div className=" flex justify-center">
-        Статус : <p className=" pl-2 text-yellow"> Очікує підтвердження</p>
+        Статус : <p className=" pl-2 text-yellow">{order.status}</p>
       </div>
 
       <a href={`http://localhost:5173/manager/workers/${order.id_worker.$oid}`}>
@@ -91,28 +91,31 @@ function OrdersActive({ orders, setIsReload, reload }) {
         <div>Адрес: {order.customer_adres}</div>
         <div>Тип техніки : {order.technic_type}</div>
       </div>
-
-      <ul class="list-disc space-y-3">
+      <div>Вартість роботи : {order.сost_work}</div>
+      <div className="list-disc space-y-3">
         <div className="  space-y-3 items-center">
           <div>Витрати:</div>
         </div>
 
-        <li
+        <div
           className={`ml-5 ${
-            order.accessories.length >= 2 ? " overflow-y-scroll h-28" : ""
+            order.accessories.length >= 2
+              ? " overflow-y-scroll space-y-5 h-28"
+              : ""
           }`}
         >
-          {order.accessories.map((e) => {
+          {order.accessories.map((e, key) => {
             return (
-              <div className=" flex space-x-2  items-center">
-                <div>{e.name} </div>
+              <div key={key} className=" flex space-x-2  items-center">
+                <div>{e.name}</div>
                 <div>-</div>
                 <div>{e.price} $</div>
               </div>
             );
           })}
-        </li>
-      </ul>
+        </div>
+      </div>
+
       <div className="  py-5 space-x-2 flex">
         <div>Опис проблеми:</div>
         <div>{order.description}</div>

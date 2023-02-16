@@ -13,35 +13,52 @@ function ConfirmOrders() {
   const [reload, setIsReload] = useState(false);
 
   useEffect(() => {
-    setIsLoading(true);
-    toast("Замовлення завантажеються");
-    axios
-      .get("http://127.0.0.1:5000/order/unconfirmedOrder", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("key")}` },
-      })
-      .then((res) => {
-        setOrders(res.data);
-      })
-      .catch((e) => {
-        toast.error("Схоже виникла проблема", e);
-      })
-      .finally(() => {
+    const fetchUnconfirmedOrders = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(
+          "http://127.0.0.1:5000/order/unconfirmedOrder",
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("key")}` },
+          }
+        );
+        setOrders(response.data);
+      } catch (error) {
+        toast.error("Схоже виникла проблема", error);
+      } finally {
         setIsLoading(false);
-      });
+      }
+    };
+
+    fetchUnconfirmedOrders();
   }, [reload]);
 
   if (isLoading) return <Loading text="Замовлення створюється" />;
   if (orders.length === 0) {
     return (
-      <div className=" text-3xl p-40">
-        Схоже немає замовлень які б потребували підтвердження
+      <div>
+        <div className=" text-3xl p-40 ">
+          Схоже немає замовлень які б потребували підтвердження
+        </div>
+
+        <a
+          className=" mx-32 py-3 px-5 flex gap-2 items-center justify-center duration-300  rounded-lg  cursor-pointer bg-gray  hover:scale-105 active:bg-blue"
+          href="http://localhost:5173/сreateOrder"
+          target="_blank"
+        >
+          Створити замовлення
+        </a>
       </div>
     );
   }
   return (
     <div className=" flex space-x-5">
       <div>
-        <OrdersList orders={orders} item={<OrdersItemConfirmationOrders />} />
+        <OrdersList
+          data={orders}
+          item={<OrdersItemConfirmationOrders />}
+          link="http://localhost:5173/сreateOrder"
+        />
       </div>
       <div>
         <OrderConfirm

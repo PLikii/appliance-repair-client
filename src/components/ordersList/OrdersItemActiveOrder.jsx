@@ -1,10 +1,10 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-function OrdersItemActiveOrder({ order, index }) {
+function OrdersItemActiveOrder({ data }) {
   const navigate = useNavigate();
   const active =
-    window.location.pathname === `/manager/activeOrders/${order._id.$oid}`;
+    window.location.pathname === `/manager/activeOrders/${data._id.$oid}`;
 
   return (
     <div
@@ -12,26 +12,29 @@ function OrdersItemActiveOrder({ order, index }) {
         active ? "  bg-blue" : " bg-border_button"
       }`}
       onClick={() => {
-        navigate(`/manager/activeOrders/${order._id.$oid}`);
+        if (
+          window.location.pathname !== `/manager/activeOrders/${data._id.$oid}`
+        )
+          navigate(`/manager/activeOrders/${data._id.$oid}`);
       }}
     >
       <div className=" flex space-x-10 ">
         <div>
           <div className={`${active ? " text-white" : " text-h2"}`}>
-            {order.customer_name}
+            {data.customer_name}
           </div>
 
           <div className={`${active ? " text-white" : " text-blue"}`}>
-            {order.customer_adres}
+            {data.customer_adres}
           </div>
 
-          <div>{order.status}</div>
+          <div>{data.status}</div>
         </div>
 
         <div>
-          <div className=" w-[100px] truncate ">{order._id.$oid}</div>
-          <div>{order.date}</div>
-          <div className=" text-sm">{order.time}</div>
+          <div className=" w-[100px] truncate ">{data._id.$oid}</div>
+          <div>{data.date}</div>
+          <div className=" text-sm">{data.time}</div>
         </div>
       </div>
     </div>

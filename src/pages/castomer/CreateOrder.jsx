@@ -11,6 +11,7 @@ function CreateOrder() {
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
+
   const formik = useFormik({
     initialValues: {
       customer_name: "",
@@ -33,31 +34,26 @@ function CreateOrder() {
         id_worker: {
           $oid: "",
         },
-        accessories: [
-          {
-            name: "Діагностика",
-            price: "50",
-          },
-        ],
+        accessories: [],
+        сost_work: 50,
       };
 
-      if (data.technic_type === "") {
+      if (!data.technic_type) {
         return toast.error("Виберіть тип техніки");
       }
-      if (data.customer_name === "") {
+      if (!data.customer_name) {
         return toast.error("Ви не увели ім'я та прізфище");
       }
-      if (data.customer_adres === "") {
+      if (!data.customer_adres) {
         return toast.error("Ви не увели адрес");
       }
-      if (data.customer_namber === "") {
+      if (!data.customer_namber) {
         return toast.error("Ви не увели мобільний номер");
       }
-      if (data.description === "")
+      if (!data.description) {
         return toast.error("Ви не увели опис проблеми");
-
+      }
       setIsLoading(true);
-
       await axios
         .post("http://127.0.0.1:5000/order", {
           data,
@@ -146,7 +142,7 @@ function CreateOrder() {
                   <select
                     id="technic_type"
                     name="technic_type"
-                    className="  w-64  lg:w-96 bg-dark py-2 px-3 rounded-lg "
+                    className="w-64 lg:w-96 bg-dark py-2 px-3 rounded-lg"
                     onChange={formik.handleChange}
                     value={formik.values.technic_type}
                   >

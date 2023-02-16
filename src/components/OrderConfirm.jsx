@@ -12,20 +12,23 @@ function OrderConfirm({ orders, setIsReload, reload }) {
   const order = orders[id];
   const [workers, setWorkers] = useState();
   const [freeTime, setFreeTime] = useState(["Виберіть дату і техніка"]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    setIsLoading(true);
-    axios
-      .get("http://127.0.0.1:5000/workers/technician")
-      .then((res) => {
-        setWorkers(res.data);
-      })
-      .catch((e) => {
-        alert(e);
-      })
-      .finally(() => {
+    const fetchWorkers = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(
+          "http://127.0.0.1:5000/workers/technician"
+        );
+        setWorkers(response.data);
+      } catch (error) {
+        alert(error);
+      } finally {
         setIsLoading(false);
-      });
+      }
+    };
+    fetchWorkers();
   }, [id]);
 
   const formik = useFormik({
@@ -42,83 +45,92 @@ function OrderConfirm({ orders, setIsReload, reload }) {
         date: values.date,
         time: values.time,
       };
-      if (data.worker === "") return alert("Виберіть пріцівника");
-      if (data.date === "") return alert("Виберіть дату");
-      if (data.time === "") return alert("Ви не вибрали час");
+      if (data.worker === "") return toast.error("Виберіть пріцівника");
+      if (data.date === "") return toast.error("Виберіть дату");
+      if (data.time === "") return toast.error("Ви не вибрали час");
       if (data.worker === "Виберіть дату і техніка")
-        return alert("Виберіть дату і техніка");
+        return toast.error("Виберіть дату і техніка");
       setIsLoading(true);
-      axios
-        .post("http://127.0.0.1:5000/order/confirm", data, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("key")}` },
-        })
-        .then((res) => {
-          if (res.data === "confirm") {
-            toast.success("Замовлення успішно підтверджене");
-            setIsReload(!reload);
+      try {
+        const response = await axios.post(
+          "http://127.0.0.1:5000/order/confirm",
+          data,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("key")}` },
           }
-        })
-        .catch((e) => {
-          toast.error(e);
-        })
-        .finally(() => {
-          setIsLoading(true);
-        });
+        );
+        if (response.data === "confirm") {
+          toast.success("Замовлення успішно підтверджене");
+          setIsReload(!reload);
+        }
+      } catch (error) {
+        toast.error(error);
+      } finally {
+        setIsLoading(false);
+      }
     },
   });
 
   function deleteOrder() {
-    var answer = window.confirm("Видалити замовлення");
-    if (answer) {
-      setIsLoading(true);
-
-      axios
-        .post(
-          "http://127.0.0.1:5000/order/delete",
-          { id: order._id.$oid },
-          {
-            headers: { Authorization: `Bearer ${localStorage.getItem("key")}` },
-          }
-        )
-        .then((res) => {
-          if (res.data === "confirm") {
-            toast.success("Замовлення успішно підтверджене");
-            setIsReload(!reload);
-          }
-        })
-        .catch((e) => {
-          alert(e);
-        })
-        .finally((e) => {
-          setIsLoading(false);
-        });
+    const answer = window.confirm("Видалити замовлення");
+    if (!answer) {
+      return;
     }
+
+    setIsLoading(true);
+
+    axios
+      .post(
+        "http://127.0.0.1:5000/order/delete",
+        { id: order._id.$oid },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("key")}` } }
+      )
+      .then((res) => {
+        if (res.data === "confirm") {
+          toast.success("Замовлення успішно підтверджене");
+          setIsReload((prev) => !prev);
+          navigate("/manager/confirmOrders/0");
+        }
+      })
+      .catch((e) => {
+        toast.error("Сталася помилка. Неможливо видалити замовлення.", e);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }
 
   useEffect(() => {
     if (formik.values.worker.length === 0) return;
     if (formik.values.date.length === 0) return;
 
-    var worker = {
-      id: formik.values.worker,
-      date: formik.values.date,
-    };
-
-    axios
-      .post("http://127.0.0.1:5000/workers/day/orders", worker)
-      .then((res) => {
-        if (JSON.stringify(res.data) === "[]") {
+    const fetchFreeTime = async () => {
+      setIsLoading(true);
+      try {
+        const worker = {
+          id: formik.values.worker,
+          date: formik.values.date,
+        };
+        const response = await axios.post(
+          "http://127.0.0.1:5000/workers/day/orders",
+          worker
+        );
+        if (JSON.stringify(response.data) === "[]") {
           setFreeTime([]);
           toast.error(
             "У даного працівника немає усі години на цей день зайняті"
           );
+        } else {
+          setFreeTime(response.data);
         }
-        toast(res.data);
-        setFreeTime(res.data);
-      })
-      .catch((e) => {
-        alert(e);
-      });
+      } catch (error) {
+        alert(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchFreeTime();
   }, [formik.values.date, formik.values.worker]);
 
   if (isLoading) return <Loading text="" />;

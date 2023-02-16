@@ -3,9 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 function SidebarItem({ icon, title, route }) {
   const { id } = useParams();
-
   const active = window.location.pathname === `${route}/${id}`;
-
   const navigate = useNavigate();
 
   return (
@@ -14,11 +12,12 @@ function SidebarItem({ icon, title, route }) {
         active ? "  bg-blue" : " bg-border_button"
       }`}
       onClick={() => {
-        navigate(`${route}/0`);
+        if (window.location.pathname !== `${route}/${id}`)
+          navigate(`${route}/0`);
       }}
     >
-      <div className="text-xl">{icon ?? ""}</div>
-      <div className="text-lg">{title ?? "Noname element"}</div>
+      <div className="text-xl">{icon || ""}</div>
+      <div className="text-lg">{title || "Noname element"}</div>
     </div>
   );
 }

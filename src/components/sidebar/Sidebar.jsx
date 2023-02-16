@@ -1,14 +1,14 @@
 import React from "react";
 import SidebarItem from "./SidebarItem";
 import { GiConfirmed } from "react-icons/gi";
-import { VscVmActive } from "react-icons/vsc";
+import { AiFillContainer } from "react-icons/ai";
 import { BsPeople } from "react-icons/bs";
 import { FcStatistics } from "react-icons/fc";
 import Profile from "../Profile";
 
 function Sidebar() {
   return (
-    <div className=" py-3 px-4 flex flex-col h-screen justify-between">
+    <div className=" py-3 px-4 flex flex-col h-screen justify-between border-2 border-gray/30">
       <div className=" space-y-10">
         <div className="space-y-3 font-bold cursor-default	">
           <div className="text-4xl">appliance repair</div>
@@ -23,8 +23,8 @@ function Sidebar() {
             route="/manager/confirmOrders"
           />
           <SidebarItem
-            icon={<VscVmActive />}
-            title="Активні замовлення"
+            icon={<AiFillContainer />}
+            title="Замовлення"
             route="/manager/activeOrders"
           />
           <SidebarItem

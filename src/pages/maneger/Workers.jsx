@@ -1,16 +1,16 @@
 import OrdersList from "../../components/ordersList/OrdersList";
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import Loading from "../../components/Loading";
-import OrdersItemActiveOrder from "../../components/ordersList/OrdersItemActiveOrder";
-import OrdersActive from "../../components/OrdersActive";
+import OrdersItemWorkers from "../../components/ordersList/OrdersItemWorkers";
+import Worker from "../../components/Worker";
 import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
-function ActiveOrders() {
+function Workers() {
   const [isLoading, setIsLoading] = useState(true);
-  const [orders, setOrders] = useState([]);
+  const [workers, setWorkers] = useState([]);
   const [reload, setIsReload] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
@@ -18,13 +18,12 @@ function ActiveOrders() {
   useEffect(() => {
     setIsLoading(true);
     axios
-      .get("http://127.0.0.1:5000/order", {
+      .get("http://127.0.0.1:5000/workers", {
         headers: { Authorization: `Bearer ${localStorage.getItem("key")}` },
       })
       .then((res) => {
-        setOrders(res.data);
-        if (id === "0")
-          navigate(`/manager/activeOrders/${res.data[0]._id.$oid}`);
+        setWorkers(res.data);
+        if (id === "0") navigate(`/manager/workers/${res.data[0]._id.$oid}`);
       })
       .catch((e) => {
         toast.error("Схоже виникла проблема", e);
@@ -36,7 +35,7 @@ function ActiveOrders() {
 
   if (isLoading) return <Loading text="Замовлення створюється" />;
 
-  if (orders.length === 0) {
+  if (workers.length === 0) {
     return <div className=" text-3xl p-40">Схоже немає замовлень</div>;
   }
 
@@ -44,20 +43,16 @@ function ActiveOrders() {
     <div className=" flex space-x-5">
       <div>
         <OrdersList
-          data={orders}
-          item={<OrdersItemActiveOrder />}
-          link="http://localhost:5173/сreateOrder"
+          data={workers}
+          item={<OrdersItemWorkers />}
+          link="http://localhost:5173/сreateWorker"
         />
       </div>
       <div>
-        <OrdersActive
-          orders={orders}
-          setIsReload={setIsReload}
-          reload={reload}
-        />
+        <Worker workers={workers} reload={reload} setIsReload={setIsReload} />
       </div>
     </div>
   );
 }
 
-export default ActiveOrders;
+export default Workers;

@@ -16,7 +16,6 @@ function About() {
           <div>
             <AiFillInstagram size={30} />
           </div>
-
           <div>
             <AiFillTwitterCircle size={30} />
           </div>

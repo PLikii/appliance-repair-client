@@ -3,7 +3,6 @@ import { toast } from "react-toastify";
 import PropTypes from "prop-types";
 import axios from "axios";
 import { AuthContext } from "./AuthContext";
-import { Navigate } from "react-router-dom";
 
 function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
@@ -11,17 +10,18 @@ function AuthProvider({ children }) {
 
   async function refreshProfile() {
     setIsLoading(true);
-    if (!localStorage.getItem("key")) {
+    const key = localStorage.getItem("key");
+    if (!key) {
       setProfile(null);
     } else {
       try {
         const res = await axios.get("http://localhost:5000/user", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("key")}` },
+          headers: { Authorization: `Bearer ${key}` },
         });
         setProfile(res.data);
       } catch (err) {
         setProfile(null);
-        alert("Невдалось загрузити профіль. Обновіть сторінку!");
+        toast.error("Невдалось загрузити профіль. Обновіть сторінку!");
       }
     }
     setIsLoading(false);
@@ -34,12 +34,7 @@ function AuthProvider({ children }) {
   }
 
   const data = useMemo(
-    () => ({
-      profile,
-      isLoading,
-      refreshProfile,
-      logout,
-    }),
+    () => ({ profile, isLoading, refreshProfile, logout }),
     [profile, isLoading, refreshProfile, logout]
   );
 
