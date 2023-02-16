@@ -1,9 +1,8 @@
 import React from "react";
 import { useFormik } from "formik";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext } from "react";
 import Loading from "../../components/Loading";
 import { AuthContext } from "../../context/AuthContext";
 import moment from "moment";
