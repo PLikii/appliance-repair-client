@@ -3,7 +3,7 @@ import { useFormik } from "formik";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Loading from "../../components/Loading";
 
 function CreateWorker() {

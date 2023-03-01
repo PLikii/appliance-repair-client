@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { AiOutlineDelete } from "react-icons/ai";
-import Loading from "./Loading";
+import Loading from "../Loading";
 
 function OrdersActive({ orders, setIsReload, reload }) {
   const [isLoading, setIsLoading] = useState(false);

@@ -13,6 +13,10 @@ import Workers from "./pages/maneger/Workers";
 import Statistics from "./pages/maneger/Statistics";
 import CreateWorker from "./pages/maneger/CreateWorker";
 import CreateLoss from "./pages/maneger/CreateLoss";
+import Sidebar from "./components/sidebar/Sidebar";
+import TodayOrders from "./pages/technician/TodayOrders";
+import SidebarTechnician from "./components/sidebarTechnician/SidebarTechnician";
+import ViewOrder from "./components/technician/ViewOrder";
 
 function App() {
   return (
@@ -22,19 +26,33 @@ function App() {
         <Routes>
           <Route
             path="/manager/confirmOrders/:id"
-            element={<Layout child={<ConfirmOrders />} />}
+            element={<Layout child={<ConfirmOrders />} sidebar={<Sidebar />} />}
           />
           <Route
             path="/manager/activeOrders/:id"
-            element={<Layout child={<ActiveOrders />} />}
+            element={<Layout child={<ActiveOrders />} sidebar={<Sidebar />} />}
           />
           <Route
             path="/manager/workers/:id"
-            element={<Layout child={<Workers />} />}
+            element={<Layout child={<Workers />} sidebar={<Sidebar />} />}
           />
           <Route
             path="/manager/statistics/:id"
-            element={<Layout child={<Statistics />} />}
+            element={<Layout child={<Statistics />} sidebar={<Sidebar />} />}
+          />
+          <Route
+            path="/technician/sidebar"
+            element={<Layout sidebar={<SidebarTechnician />} />}
+          />
+          <Route
+            path="/technician/todayOrders/:id"
+            element={
+              <Layout child={<TodayOrders sidebar={<SidebarTechnician />} />} />
+            }
+          />
+          <Route
+            path="/technician/viewOrder/:id"
+            element={<Layout child={<ViewOrder />} />}
           />
           <Route path="/" element={<About />} />
           <Route path="/сreateOrder" element={<CreateOrder />} />

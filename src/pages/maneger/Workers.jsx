@@ -4,7 +4,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import Loading from "../../components/Loading";
 import OrdersItemWorkers from "../../components/ordersList/OrdersItemWorkers";
-import Worker from "../../components/Worker";
+import Worker from "../../components/maneger/Worker";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 

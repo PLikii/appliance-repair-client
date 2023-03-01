@@ -5,11 +5,13 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import toast from "react-hot-toast";
 import Loading from "../components/Loading";
+import useWindowDimensions from "../hooks/useWindowDimensions";
 
 function LogIn() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { profile, refreshProfile } = useContext(AuthContext);
+  const { width } = useWindowDimensions();
 
   useEffect(() => {
     if (!profile) {
@@ -48,7 +50,11 @@ function LogIn() {
           if (profile.job_title === "manager") {
             navigate("/manager/confirmOrders/0");
           } else if (profile.job_title === "technician") {
-            navigate("/technician/todayOrders");
+            if (width <= 640) {
+              navigate("/technician/sidebar");
+            } else {
+              navigate("/technician/todayOrders/0");
+            }
           }
         });
     },

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import Loading from "./Loading";
-import ItemOrder from "./statisticsItem/ItemOrder";
+import Loading from "../Loading";
+import ItemOrder from "../statisticsItem/ItemOrder";
 
 function TechnicianOrders({ worker }) {
   const [isLoading, setIsLoading] = useState(true);

@@ -9,7 +9,6 @@ import ItemWorker from "../../components/statisticsItem/ItemWorker";
 function Statistics() {
   const [isLoading, setIsLoading] = useState(true);
   const [statistics, setStatistics] = useState({ expenses: 0, revenue: 0 });
-  const [reload, setIsReload] = useState(false);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -27,7 +26,7 @@ function Statistics() {
 
   useEffect(() => {
     fetchStats();
-  }, [fetchStats, reload]);
+  }, [fetchStats]);
 
   if (isLoading) return <Loading text="Замовлення створюється" />;
   return (

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Loading from "./Loading";
+import Loading from "../Loading";
 import axios from "axios";
 import { useFormik } from "formik";
 import toast from "react-hot-toast";

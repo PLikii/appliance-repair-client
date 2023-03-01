@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { useParams, useNavigate } from "react-router-dom";
 import TechnicianOrders from "./TechnicianOrders";
 import { AiOutlineDelete } from "react-icons/ai";
-import Loading from "./Loading";
+import Loading from "../Loading";
 
 function Worker({ workers, reload, setIsReload }) {
   const { id } = useParams();

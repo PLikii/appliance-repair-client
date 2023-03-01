@@ -2,12 +2,12 @@ from flask import Flask, Response, request, redirect, jsonify, make_response
 from bson.json_util import dumps
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-from datetime import datetime
 import urllib
 import hashlib
 from flask_cors import CORS
 import secrets
-
+from datetime import date
+from bson.objectid import ObjectId
 
 # Підключення до бази даних
 client = MongoClient('localhost', 27017)
@@ -145,6 +145,20 @@ def getWorkersByID():
     return Response(dumps(worker, ensure_ascii=False))
 
 
+@ app.route("/workers/todayOrders/<string:id>", methods=['GET'])
+def todayOrders(id):
+    today = date.today()
+    today = today.strftime('%Y-%m-%d')
+    results = orders.find({"id_worker": ObjectId(id), "date": today})
+    return Response(dumps(results, ensure_ascii=False))
+
+
+@ app.route("/orders/<string:id>", methods=['GET'])
+def ordersFindOne(id):
+    results = orders.find_one({"_id": ObjectId(id)})
+    return Response(dumps(results, ensure_ascii=False))
+
+
 @ app.route("/workers/day/orders", methods=['POST'])
 def dayOrder():
     time = [
@@ -201,6 +215,26 @@ def activeOrder():
     return Response(dumps(orderActive))
 
 
+@ app.route("/order/сomplete/<string:order_id>", methods=['GET'])
+def completeOrder(order_id):
+    # Перевірити, чи містить запит дійсний ключ
+    if check_key(request):
+        return Response(check_key(request))
+
+  # Знаходження замовлення з вказаним ідентифікатором
+    order = orders.find_one({"_id": ObjectId(order_id)})
+    if order is None:
+        return f"Замовлення з ідентифікатором {order_id} не знайдено", 404
+
+    # Оновлення поля "status" замовлення на "Закінчене"
+    result = orders.update_one(
+        {"_id": ObjectId(order_id)}, {"$set": {"status": "Закінчене"}})
+    if result.modified_count == 1:
+        return f"Замовлення з ідентифікатором {order_id} відзначено як завершене", 200
+    else:
+        return "Не вдалося оновити статус замовлення", 500
+
+
 @ app.route("/order/delete", methods=['POST'])
 def deleteOrder():
     orders.delete_one({"_id": ObjectId(request.json["id"])})
@@ -209,6 +243,7 @@ def deleteOrder():
 
 @ app.route("/order/unconfirmedOrder", methods=['GET'])
 def getUnconfirmedOrder():
+    # Перевірити, чи містить запит дійсний ключ
     if check_key(request):
         return Response(check_key(request))
 
@@ -218,6 +253,7 @@ def getUnconfirmedOrder():
 
 @ app.route("/order/update", methods=['POST'])
 def updateOrder():
+    # Перевірити, чи містить запит дійсний ключ
     if check_key(request):
         return Response(check_key(request))
 
@@ -237,72 +273,98 @@ def updateOrder():
 
 @ app.route("/order/confirm", methods=['POST'])
 def confirmOrder():
+    # Перевірити, чи містить запит дійсний ключ
     if check_key(request):
         return Response(check_key(request))
 
+    # Отримати ідентифікатор замовлення, дату, час та ідентифікатор робітника з запиту
     orders_id = ObjectId(request.json["id"])
     date = request.json["date"]
     time = request.json["time"]
     worker_id = request.json["worker"]
 
-    orders.update_one({"_id": orders_id}, {"$set": {"date": date}})
-    orders.update_one({"_id": orders_id}, {
-                      "$set": {"id_worker": ObjectId(worker_id)}})
-    orders.update_one({"_id": orders_id}, {"$set": {"status": "Діагностика"}})
-    orders.update_one({"_id": orders_id}, {"$set": {"time": time}})
+  # Оновити замовлення з новою датою, часом, ідентифікатором робітника та статусом
+    orders.update_one({"_id": orders_id}, {"$set": {
+                      "date": date, "time": time, "id_worker": ObjectId(worker_id), "status": "Діагностика"}})
 
+    # Повернути повідомлення підтвердження
     return Response("confirm")
 
 
-@app.route("/order/accessories/<order_id>", methods=['POST', 'DELETE'])
-def accessories_order(order_id):
-    if 'key' not in request.headers:
-        return Response("Authorization required", status=401)
-
+@app.route('/orders/<string:order_id>/accessories', methods=['POST', 'DELETE'])
+def add_accessory(order_id):
+    # Знайти замовлення за id
     order = orders.find_one({'_id': ObjectId(order_id)})
     if not order:
-        return Response("Order not found", status=404)
-
-    key = request.headers['key']
-    if not check_key(key):
-        return Response("Invalid key", status=401)
-
-    if request.method == 'POST':
-        accessories = request.json.get('accessories')
-        if accessories:
-            order["accessories"].extend(accessories)
-            orders.update_one({'_id': order['_id']}, {
-                              '$set': {"accessories": order["accessories"]}})
-            return Response("Success")
-        else:
-            return Response("Accessories required", status=400)
+        return {'error': 'Order not found'}, 404
 
     if request.method == 'DELETE':
-        accessories_id = request.json.get('accessories_id')
-        if accessories_id:
-            order["accessories"] = [
-                a for a in order["accessories"] if a['id'] != accessories_id]
-            orders.update_one({'_id': order['_id']}, {
-                              '$set': {"accessories": order["accessories"]}})
-            return Response("Success")
-        else:
-            return Response("Accessories ID required", status=400)
+        print(request.json)
+        # Перевірити наявність ключа 'index' в request.json та його правильність формату
+        if not request.json or 'index' not in request.json or not isinstance(request.json['index'], int):
+            return {'error': 'Invalid request data'}, 400
 
-    return Response("Invalid method", status=405)
+        # Отримати дані про елемент, який потрібно видалити
+        index = request.json['index']
+
+        # Перевірити, чи існує елемент з таким індексом у списку accessories замовлення
+        if not (0 <= index < len(order['accessories'])):
+            return {'error': f'Index {index} is out of range for accessories in order'}, 404
+
+        # Видалити елемент зі списку accessories замовлення
+        del order['accessories'][index]
+
+        # Оновити замовлення в MongoDB та перевірити успішність оновлення
+        result = orders.update_one({'_id': ObjectId(order_id)}, {
+                                   '$set': {'accessories': order['accessories']}})
+        if result.modified_count < 1:
+            return {'error': 'Failed to update order'}, 500
+
+        # Повернути знайдене замовлення з оновленим списком accessories
+        return dumps({'order': order}), 200
+
+    elif request.method == 'POST':
+        # Отримати дані про новий елемент
+        name = request.json['data']['name']
+        price = request.json['data']['price']
+        if not name or not price:
+            return {'error': 'Invalid accessory data'}, 400
+
+        # Додати новий елемент до списку accessories
+        new_accessory = {'name': name, 'price': price}
+        order['accessories'].append(new_accessory)
+
+        # Оновити замовлення в MongoDB
+        orders.update_one({'_id': ObjectId(order_id)}, {
+                          '$set': {'accessories': order['accessories']}})
+
+        # Повернути знайдене замовлення з оновленим списком accessories
+        return dumps({'order': order}), 200
 
 
 @ app.route("/login", methods=['GET', 'POST'])
 def logIn():
+    # витягуємо логін та пароль користувача з отриманих даних
     json = request.json
     login = json["data"]["login"]
     password = json["data"]["password"]
 
+    # шукаємо користувача в базі даних
     user = workers.find_one({"login": login, "password": password})
+
+    # якщо користувач не знайдений, повертаємо відповідь з помилкою
+    if not user:
+        return Response("error")
+
+    # генеруємо токен для аутентифікації користувача
     key = secrets.token_urlsafe(16)
 
+    # зберігаємо токен у базі даних
     workers.update_one({"login": login, "password": password}, {
         "$set": {"key": key}})
     user = workers.find_one({"login": login, "password": password})
+
+    # повертаємо дані користувача у форматі JSON
     if not user:
         return Response("error")
     return Response(dumps(user))

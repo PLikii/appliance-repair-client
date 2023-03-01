@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Loading from "../../components/Loading";
-import OrderConfirm from "../../components/OrderConfirm";
+import OrderConfirm from "../../components/maneger/OrderConfirm";
 import OrdersItemConfirmationOrders from "../../components/ordersList/OrdersItemConfirmationOrders";
 
 function ConfirmOrders() {

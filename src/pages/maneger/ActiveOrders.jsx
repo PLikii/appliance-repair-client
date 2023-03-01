@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import Loading from "../../components/Loading";
 import OrdersItemActiveOrder from "../../components/ordersList/OrdersItemActiveOrder";
-import OrdersActive from "../../components/OrdersActive";
+import OrdersActive from "../../components/maneger/OrdersActive";
 import { useNavigate } from "react-router-dom";
 
 function ActiveOrders() {
