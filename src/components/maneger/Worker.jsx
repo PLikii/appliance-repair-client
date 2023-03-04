@@ -40,7 +40,7 @@ function Worker({ workers, reload, setIsReload }) {
 
   if (isLoading) return <Loading text="" />;
   return (
-    <div className=" text-xl space-y-6 p-5 min-w-[850px] fixed  overflow-y-clip">
+    <div className=" text-xl space-y-6 p-5 min-w-[850px] fixed  overflow-y-clip  border-l-2 border-gray h-screen pl-4">
       <div className=" flex justify-between items-center">
         <div></div>
         <div>{worker._id.$oid}</div>

@@ -17,10 +17,15 @@ import Sidebar from "./components/sidebar/Sidebar";
 import TodayOrders from "./pages/technician/TodayOrders";
 import SidebarTechnician from "./components/sidebarTechnician/SidebarTechnician";
 import ViewOrder from "./components/technician/ViewOrder";
+import ContinueOrder from "./pages/technician/ContinueOrder";
+import TechnicianSidebar from "./pages/technician/TechnicianSidebar";
+import FutureOrders from "./pages/technician/FutureOrders";
+import TechnicianStatistics from "./pages/technician/TechnicianStatistics";
+import OrderView from "./pages/technician/OrderView";
 
 function App() {
   return (
-    <div className="">
+    <div className="overflow-x-hidden">
       <Toaster position="top-right" theme="dark" reverseOrder={false} />
       <BrowserRouter>
         <Routes>
@@ -40,9 +45,10 @@ function App() {
             path="/manager/statistics/:id"
             element={<Layout child={<Statistics />} sidebar={<Sidebar />} />}
           />
+
           <Route
             path="/technician/sidebar"
-            element={<Layout sidebar={<SidebarTechnician />} />}
+            element={<Layout sidebar={<TechnicianSidebar />} />}
           />
           <Route
             path="/technician/todayOrders/:id"
@@ -53,6 +59,36 @@ function App() {
           <Route
             path="/technician/viewOrder/:id"
             element={<Layout child={<ViewOrder />} />}
+          />
+          <Route
+            path="/technician/continue/order/:id"
+            element={
+              <Layout
+                child={<ContinueOrder sidebar={<SidebarTechnician />} />}
+              />
+            }
+          />
+          <Route
+            path="/technician/future/orders/:id"
+            element={
+              <Layout
+                child={<FutureOrders sidebar={<SidebarTechnician />} />}
+              />
+            }
+          />
+          <Route
+            path="/technician/statistics/:id"
+            element={
+              <Layout
+                child={<TechnicianStatistics sidebar={<SidebarTechnician />} />}
+              />
+            }
+          />
+          <Route
+            path="/view/order/:id"
+            element={
+              <Layout child={<OrderView sidebar={<SidebarTechnician />} />} />
+            }
           />
           <Route path="/" element={<About />} />
           <Route path="/сreateOrder" element={<CreateOrder />} />

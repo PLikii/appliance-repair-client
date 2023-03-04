@@ -8,6 +8,9 @@ from flask_cors import CORS
 import secrets
 from datetime import date
 from bson.objectid import ObjectId
+from datetime import datetime
+import pymongo
+
 
 # Підключення до бази даних
 client = MongoClient('localhost', 27017)
@@ -79,6 +82,39 @@ def getStat():
     return Response(dumps({"data": data, "expenses": expenses, "revenue": revenue}, ensure_ascii=False))
 
 
+@ app.route("/technician/Stats/<string:worker_id>", methods=['GET'])
+def technicianStats(worker_id):
+
+    worker = workers.find_one({'_id': ObjectId(worker_id)})
+    if worker is None:
+        return Response("error")
+
+    orderlist = list(orders.find(
+        {"id_worker": ObjectId(worker_id), "status": "Закінчене"}))
+
+    expenses = 0
+    revenue = 0
+
+    for item in orderlist:
+        if "loss" in item:
+            expenses += int(item["loss"])
+        if "accessories" in item:
+            for accessory in item["accessories"]:
+                expenses += int(accessory["price"])
+        if "сost_work" in item:
+            revenue += int(item["сost_work"])
+        if "solary" in item:
+            expenses += int(item["solary"])
+
+    # повертаємо інформацію про робітника та його замовлення
+    return Response(dumps({
+        'salary': worker['solary'],
+        'expenses': expenses,
+        'revenue': revenue,
+        'orders': orderlist
+    }, ensure_ascii=False))
+
+
 @ app.route("/loss", methods=['GET', 'POST'])
 def lossess():
     if request.method == 'GET':
@@ -147,9 +183,24 @@ def getWorkersByID():
 
 @ app.route("/workers/todayOrders/<string:id>", methods=['GET'])
 def todayOrders(id):
+
     today = date.today()
     today = today.strftime('%Y-%m-%d')
     results = orders.find({"id_worker": ObjectId(id), "date": today})
+
+    def extract_time_range(time_range):
+        start, end = time_range.split(" - ")
+        return int(start.split(":")[0]), int(end.split(":")[0])
+
+    results = sorted(results, key=lambda x: extract_time_range(x["time"]))
+
+    return Response(dumps(results, ensure_ascii=False))
+
+
+@ app.route("/workers/future/orders/<string:id>", methods=['GET'])
+def futureOrders(id):
+    today = datetime.today().strftime('%Y-%m-%d')
+    results = orders.find({"id_worker": ObjectId(id), "date": {"$gte": today}})
     return Response(dumps(results, ensure_ascii=False))
 
 
@@ -179,17 +230,35 @@ def dayOrder():
     return Response(dumps(time))
 
 
+@app.route("/workers/continue/order", methods=['POST'])
+def continue_order():
+    data = request.json
+    order_id = data.get("id")
+    order_date = data.get("date")
+    order_time = data.get("time")
+
+    result = orders.update_one({"_id": ObjectId(order_id)}, {
+                               "$set": {"date": order_date, "time": order_time, "status": "Продовження"}})
+
+    if result.modified_count > 0:
+        return Response("confirm")
+    return Response("error")
+
+
 @ app.route("/order", methods=['POST', 'GET', 'DELETE'])
 def createOrder():
+    # повернути список замовлень зі статусом "Діагностика", "Продовження" або "Закінчене"
     if request.method == 'GET':
         if check_key(request):
             return Response(check_key(request))
-        return Response(dumps(orders.find({"status": {"$in": ["Діагностика", "Виконується", "Закінчене"], }}), ensure_ascii=False))
+        return Response(dumps(orders.find({"status": {"$in": ["Діагностика", "Продовження", "Закінчене"], }}), ensure_ascii=False))
 
+    # створити нове замовлення та повернути підтвердження
     if request.method == 'POST':
         orders.insert_one(request.json["data"]).inserted_id
         return Response("confirm")
 
+    # идалити замовлення за вказаним ідентифікатором та повернути підтвердження
     if request.method == 'DELETE':
         if check_key(request):
             return Response(check_key(request))
@@ -208,31 +277,49 @@ def activeOrder():
     if check_key(request):
         return Response(check_key(request))
 
-    orderExecuted = orders.find({"status": "Виконується"})
+    # Знайти замовлення зі статусом "Продовження" або "Діагностика" та повернути їх у відповіді
+    orderExecuted = orders.find({"status": "Продовження"})
     orderDiagnostics = orders.find(
-        {"status": {"$in": ["Діагностика", "Виконується"]}})
+        {"status": {"$in": ["Діагностика", "Продовження"]}})
     orderActive = orderDiagnostics
     return Response(dumps(orderActive))
 
 
-@ app.route("/order/сomplete/<string:order_id>", methods=['GET'])
-def completeOrder(order_id):
-    # Перевірити, чи містить запит дійсний ключ
+@ app.route("/order/сomplete/<string:order_id>/<string:cost>", methods=['GET'])
+def completeOrder(order_id, cost):
     if check_key(request):
         return Response(check_key(request))
 
-  # Знаходження замовлення з вказаним ідентифікатором
+    # Знаходження замовлення з вказаним ідентифікатором
     order = orders.find_one({"_id": ObjectId(order_id)})
     if order is None:
         return f"Замовлення з ідентифікатором {order_id} не знайдено", 404
 
+    if order.get("status") == "Закінчене":
+        return f"Замовлення з ідентифікатором {order_id} вже має статус 'Закінчене'", 200
+
     # Оновлення поля "status" замовлення на "Закінчене"
     result = orders.update_one(
-        {"_id": ObjectId(order_id)}, {"$set": {"status": "Закінчене"}})
+        {"_id": ObjectId(order_id)}, {"$set": {"status": "Закінчене", "сost_work": cost}})
+
     if result.modified_count == 1:
-        return f"Замовлення з ідентифікатором {order_id} відзначено як завершене", 200
+        # Додавання половини cost до зарплати робітника, який виконав замовлення
+        worker_id = order.get("id_worker")
+        worker = workers.find_one({"_id": ObjectId(worker_id)})
+
+        if worker is None:
+            return f"Робітника з _id {worker_id} не знайдено", 200
+        else:
+            current_salary = worker.get("solary")
+            new_salary = float(current_salary) + float(cost) / 2
+            result = workers.update_one(
+                {"_id": ObjectId(worker_id)}, {"$set": {"solary": new_salary}})
+            if result.modified_count == 1:
+                return f"Замовлення з ідентифікатором {order_id} відзначено як завершене. Зарплата робітника з id_worker {worker_id} збільшена на половину вартості замовлення", 200
+            else:
+                return "Не вдалося оновити зарплату робітника", 200
     else:
-        return "Не вдалося оновити статус замовлення", 500
+        return "Не вдалося оновити статус замовлення", 200
 
 
 @ app.route("/order/delete", methods=['POST'])
@@ -243,7 +330,6 @@ def deleteOrder():
 
 @ app.route("/order/unconfirmedOrder", methods=['GET'])
 def getUnconfirmedOrder():
-    # Перевірити, чи містить запит дійсний ключ
     if check_key(request):
         return Response(check_key(request))
 
@@ -253,31 +339,33 @@ def getUnconfirmedOrder():
 
 @ app.route("/order/update", methods=['POST'])
 def updateOrder():
-    # Перевірити, чи містить запит дійсний ключ
     if check_key(request):
         return Response(check_key(request))
 
     json = request.json
     order_id = json["order_id"]["$oid"]
+
+    # Пошук замовлення в базі даних за заданим ID
     order = orders.find_one({'_id': ObjectId(order_id)})
+
     parameter_name = json["parameter_name"]
     new_value = json["new_value"]
 
+    # Оновити параметр замовлення в базі даних
     orders.update_one(
         {'_id': ObjectId(order_id)},
         {'$set': {parameter_name: ObjectId(new_value)} if parameter_name == 'id_worker' else {
             parameter_name: new_value}}
     )
+
     return Response("successfully")
 
 
 @ app.route("/order/confirm", methods=['POST'])
 def confirmOrder():
-    # Перевірити, чи містить запит дійсний ключ
     if check_key(request):
         return Response(check_key(request))
 
-    # Отримати ідентифікатор замовлення, дату, час та ідентифікатор робітника з запиту
     orders_id = ObjectId(request.json["id"])
     date = request.json["date"]
     time = request.json["time"]
@@ -287,24 +375,18 @@ def confirmOrder():
     orders.update_one({"_id": orders_id}, {"$set": {
                       "date": date, "time": time, "id_worker": ObjectId(worker_id), "status": "Діагностика"}})
 
-    # Повернути повідомлення підтвердження
     return Response("confirm")
 
 
 @app.route('/orders/<string:order_id>/accessories', methods=['POST', 'DELETE'])
 def add_accessory(order_id):
-    # Знайти замовлення за id
     order = orders.find_one({'_id': ObjectId(order_id)})
     if not order:
         return {'error': 'Order not found'}, 404
 
     if request.method == 'DELETE':
         print(request.json)
-        # Перевірити наявність ключа 'index' в request.json та його правильність формату
-        if not request.json or 'index' not in request.json or not isinstance(request.json['index'], int):
-            return {'error': 'Invalid request data'}, 400
 
-        # Отримати дані про елемент, який потрібно видалити
         index = request.json['index']
 
         # Перевірити, чи існує елемент з таким індексом у списку accessories замовлення
@@ -320,11 +402,9 @@ def add_accessory(order_id):
         if result.modified_count < 1:
             return {'error': 'Failed to update order'}, 500
 
-        # Повернути знайдене замовлення з оновленим списком accessories
         return dumps({'order': order}), 200
 
     elif request.method == 'POST':
-        # Отримати дані про новий елемент
         name = request.json['data']['name']
         price = request.json['data']['price']
         if not name or not price:
@@ -338,13 +418,11 @@ def add_accessory(order_id):
         orders.update_one({'_id': ObjectId(order_id)}, {
                           '$set': {'accessories': order['accessories']}})
 
-        # Повернути знайдене замовлення з оновленим списком accessories
         return dumps({'order': order}), 200
 
 
 @ app.route("/login", methods=['GET', 'POST'])
 def logIn():
-    # витягуємо логін та пароль користувача з отриманих даних
     json = request.json
     login = json["data"]["login"]
     password = json["data"]["password"]
@@ -364,7 +442,6 @@ def logIn():
         "$set": {"key": key}})
     user = workers.find_one({"login": login, "password": password})
 
-    # повертаємо дані користувача у форматі JSON
     if not user:
         return Response("error")
     return Response(dumps(user))

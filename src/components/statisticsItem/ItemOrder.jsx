@@ -1,11 +1,10 @@
 import React from "react";
-import {} from "react-router-dom";
 
-function ItemOrder({ data }) {
+function ItemOrder({ data, link }) {
   return (
     <a
       className=" w-[400px]"
-      href={`http://localhost:5173/manager/activeOrders/${data._id.$oid}`}
+      href={`http://localhost:5173${link}${data._id.$oid}`}
     >
       <div className=" space-y-3 border-2 border-gray p-3 rounded-lg">
         <div className=" text-center text-sm">Замовлення</div>

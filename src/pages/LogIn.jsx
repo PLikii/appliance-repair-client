@@ -60,7 +60,7 @@ function LogIn() {
     },
   });
   return (
-    <div>
+    <div className=" w-screen h-screen">
       {isLoading ? <Loading text="Виконується вхід" /> : ""}
       <div className="py-7 px-10 sm:flex items-center justify-between space-y-10 sm:space-y-0">
         <div className="space-y-3 font-bold ">

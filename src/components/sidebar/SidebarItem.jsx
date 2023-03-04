@@ -8,7 +8,7 @@ function SidebarItem({ icon, title, route }) {
 
   return (
     <div
-      className={`flex flex-row gap-2 items-center duration-300 w-full rounded-lg py-3 px-4 cursor-pointer  hover:bg-gray ${
+      className={`flex flex-row gap-2 items-center duration-300 w-full rounded-lg py-3 px-4 cursor-pointer border  hover:bg-gray border-b-4 border-gray ${
         active ? "  bg-blue" : " bg-border_button"
       }`}
       onClick={() => {

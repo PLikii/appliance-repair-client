@@ -47,6 +47,7 @@ function ActiveOrders() {
           data={orders}
           item={<OrdersItemActiveOrder />}
           link="http://localhost:5173/сreateOrder"
+          find={true}
         />
       </div>
       <div>

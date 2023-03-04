@@ -11,7 +11,7 @@ import ViewOrder from "../../components/technician/ViewOrder";
 import { AuthContext } from "../../context/AuthContext";
 import BackHeader from "../../components/technician/BackHeader";
 
-function TodayOrders({ sidebar }) {
+function FutureOrders({ sidebar }) {
   const { profile } = useContext(AuthContext);
   const { width } = useWindowDimensions();
   const [isLoading, setIsLoading] = useState(true);
@@ -22,14 +22,14 @@ function TodayOrders({ sidebar }) {
   useEffect(() => {
     setIsLoading(true);
     axios
-      .get(`http://127.0.0.1:5000/workers/todayOrders/${profile._id.$oid}`, {
+      .get(`http://127.0.0.1:5000/workers/future/orders/${profile._id.$oid}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("key")}` },
       })
       .then((res) => {
         setOrders(res.data);
         if (width > 640) {
           if (id === "0")
-            navigate(`/technician/todayOrders/${res.data[0]._id.$oid}`);
+            navigate(`/technician/future/orders/${res.data[0]._id.$oid}`);
         }
       })
       .catch((e) => {
@@ -51,7 +51,7 @@ function TodayOrders({ sidebar }) {
 
         <OrdersList
           data={orders}
-          item={<OrdersItemTodayOrders link="/technician/todayOrders/" />}
+          item={<OrdersItemTodayOrders link="/technician/future/orders/" />}
           link="http://localhost:5173/сreateOrder"
           find={true}
         />
@@ -59,11 +59,7 @@ function TodayOrders({ sidebar }) {
       <div className=" w-full">
         {orders.length !== 0 ? (
           width > 768 ? (
-            <ViewOrder
-              orders={orders}
-              width={width}
-              link="/technician/todayOrders/"
-            />
+            <ViewOrder orders={orders} />
           ) : (
             ""
           )
@@ -75,4 +71,4 @@ function TodayOrders({ sidebar }) {
   );
 }
 
-export default TodayOrders;
+export default FutureOrders;

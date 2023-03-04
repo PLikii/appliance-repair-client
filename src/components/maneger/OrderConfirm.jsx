@@ -33,7 +33,7 @@ function OrderConfirm({ orders, setIsReload, reload }) {
 
   const formik = useFormik({
     initialValues: {
-      id: order._id.$oid,
+      id: id,
       worker: "",
       date: "",
       time: "",
@@ -61,6 +61,7 @@ function OrderConfirm({ orders, setIsReload, reload }) {
         );
         if (response.data === "confirm") {
           toast.success("Замовлення успішно підтверджене");
+          navigate("/manager/confirmOrders/0");
           setIsReload(!reload);
         }
       } catch (error) {
@@ -136,7 +137,7 @@ function OrderConfirm({ orders, setIsReload, reload }) {
   if (isLoading) return <Loading text="" />;
 
   return (
-    <div className=" text-xl p-3 space-y-5  min-w-[850px] max-w-[850px]">
+    <div className=" text-xl p-3 space-y-5  min-w-[850px] max-w-[850px]  border-l-2 border-gray h-screen  pl-4">
       <div className="flex w-full justify-around ">
         <div></div>
         <div className=" text-center">ID: {order._id.$oid}</div>
@@ -210,7 +211,7 @@ function OrderConfirm({ orders, setIsReload, reload }) {
           </div>
         </div>
 
-        <div>Адрес: {order.customer_address}</div>
+        <div>Адрес: {order.customer_adres}</div>
         <div>Клієнт: {order.customer_name}</div>
         <div>Мобільний номер : {order.customer_namber}</div>
         <div>Тип техніки : {order.technic_type}</div>

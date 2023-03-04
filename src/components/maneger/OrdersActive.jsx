@@ -61,7 +61,7 @@ function OrdersActive({ orders, setIsReload, reload }) {
   if (isLoading) return <Loading text="" />;
 
   return (
-    <div className=" text-xl space-y-6  min-w-[850px] fixed  overflow-y-clip">
+    <div className=" text-xl space-y-6  min-w-[850px] fixed  overflow-y-clip  border-l-2 border-gray h-screen pl-4">
       <div className="flex w-full justify-around py-2">
         <div></div>
         <div className=" text-center">ID: {order._id.$oid}</div>

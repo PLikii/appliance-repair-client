@@ -30,7 +30,7 @@ function Statistics() {
 
   if (isLoading) return <Loading text="Замовлення створюється" />;
   return (
-    <div className=" space-y-10 p-5">
+    <div className=" space-y-10 p-5  border-l-2 border-gray h-screen pl-4">
       <div className=" flex justify-around">
         <div></div>
 
@@ -52,7 +52,13 @@ function Statistics() {
       >
         {statistics.data.map((item, index) => {
           if (item.hasOwnProperty("сost_work")) {
-            return <ItemOrder key={index} data={item} />;
+            return (
+              <ItemOrder
+                key={index}
+                data={item}
+                link="/manager/activeOrders/"
+              />
+            );
           } else if (item.hasOwnProperty("loss")) {
             return <ItemLoss key={index} data={item} />;
           } else if (item.hasOwnProperty("solary")) {
@@ -63,7 +69,7 @@ function Statistics() {
         })}
       </div>
 
-      <div className="flex justify-around">
+      <div className="flex justify-around ">
         <div>Витрати: {statistics.expenses}$</div>
         <div>Прибуток: {statistics.revenue}$</div>
         <div>Чистий прибуток: {statistics.revenue - statistics.expenses}$</div>

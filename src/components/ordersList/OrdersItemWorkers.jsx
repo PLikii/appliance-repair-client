@@ -9,7 +9,7 @@ function OrdersItemWorkers({ data }) {
 
   return (
     <div
-      className={` w-[300px] h-16 flex flex-colduration-300 items-center  rounded-lg py-3 px-4 cursor-pointer border-b-2 border-gray hover:bg-gray ${
+      className={` sm:w-[300px] h-16 flex flex-colduration-300 items-center  rounded-lg py-3 px-4 my-3 cursor-pointer mx-2 border-2 border-b-4 border-gray hover:bg-gray ${
         active ? "  bg-blue" : " bg-border_button"
       }`}
       onClick={() => {

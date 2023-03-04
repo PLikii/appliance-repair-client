@@ -58,6 +58,7 @@ function ConfirmOrders() {
           data={orders}
           item={<OrdersItemConfirmationOrders />}
           link="http://localhost:5173/сreateOrder"
+          find={true}
         />
       </div>
       <div>

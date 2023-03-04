@@ -8,7 +8,7 @@ function OrdersItemActiveOrder({ data }) {
 
   return (
     <div
-      className={` w-[300px] flex flex-col items-center duration-300  rounded-lg py-3 px-4 cursor-pointer border-b-2 border-gray hover:bg-gray ${
+      className={` w-[300px]  flex flex-col items-center duration-300  rounded-lg py-3 px-4 my-3 cursor-pointer mx-2 border-2 border-b-4 border-gray hover:bg-gray ${
         active ? "  bg-blue" : " bg-border_button"
       }`}
       onClick={() => {

@@ -7,7 +7,7 @@ function OrdersItemConfirmationOrders({ data, index }) {
 
   return (
     <div
-      className={` w-[300px] flex flex-col  gap-2 items-center duration-300  rounded-lg py-3 px-4 cursor-pointer border-b-2 border-gray hover:bg-gray ${
+      className={` ml-3 w-[300px] flex flex-col  gap-2 items-center duration-300  rounded-lg py-3 my-3  px-4 cursor-pointermx-2 border-2 border-b-4 border-gray hover:bg-gray ${
         active ? "  bg-blue" : " bg-border_button"
       }`}
       onClick={() => {

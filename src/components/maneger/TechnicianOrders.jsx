@@ -29,7 +29,9 @@ function TechnicianOrders({ worker }) {
   return (
     <div className="grid grid-cols-2 place-items-center overflow-y-scroll gap-2 h-[360px]">
       {orders.map((item, index) => {
-        return <ItemOrder key={index} data={item} />;
+        return (
+          <ItemOrder key={index} data={item} link="/manager/activeOrders/" />
+        );
       })}
     </div>
   );

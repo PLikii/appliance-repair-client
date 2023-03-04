@@ -4,7 +4,7 @@ import Loading from "../Loading";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-function AccessoriesItem({ name, price, index, id, reload, setReload }) {
+function AccessoriesItem({ name, price, index, id, fetchOrder }) {
   const [isLoading, setIsLoading] = useState(false);
 
   function deleteOrder() {
@@ -21,8 +21,8 @@ function AccessoriesItem({ name, price, index, id, reload, setReload }) {
       })
       .then((res) => {
         if (res.status === 200) {
-          setReload((prev) => !prev);
           toast.success("Замовлення успішно видалено");
+          fetchOrder();
         }
       })
       .catch((e) => {

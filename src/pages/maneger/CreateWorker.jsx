@@ -23,7 +23,7 @@ function CreateWorker() {
       login: "",
       password: "",
       email: "",
-      solary: "",
+      solary: "0",
     },
 
     onSubmit: async (values) => {
@@ -45,7 +45,12 @@ function CreateWorker() {
       if (!data.login) return toast.error("Увидіть логін");
       if (!data.password) return toast.error("Увидіть пароль");
       if (!data.email) return toast.error("Увидіть емейл");
-      if (!data.solary) return toast.error("Увидіть заробітн плату");
+      if (!data.solary) {
+        if (data.job_title === "manager") {
+          return toast.error("Увидіть заробітн плату");
+        }
+        data.solary = 0;
+      }
       setIsLoading(true);
 
       await axios
@@ -127,19 +132,22 @@ function CreateWorker() {
                     value={formik.values.phon_namber}
                   />
                 </div>
-
-                <div className=" text-left space-y-3">
-                  <div>Заробітна плата</div>
-                  <input
-                    className=" w-64 lg:w-96 bg-dark py-2 px-3 rounded-lg "
-                    id="solary"
-                    name="solary"
-                    type="text"
-                    placeholder="Заробітна плата"
-                    onChange={formik.handleChange}
-                    value={formik.values.solary}
-                  />
-                </div>
+                {formik.values.job_title === "manager" ? (
+                  <div className=" text-left space-y-3">
+                    <div>Заробітна плата</div>
+                    <input
+                      className=" w-64 lg:w-96 bg-dark py-2 px-3 rounded-lg "
+                      id="solary"
+                      name="solary"
+                      type="number"
+                      placeholder="Заробітна плата"
+                      onChange={formik.handleChange}
+                      value={formik.values.solary}
+                    />
+                  </div>
+                ) : (
+                  ""
+                )}
               </div>
 
               <div className=" space-y-6">
