@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 function About() {
   return (
-    <div className="space-y-10 ">
+    <div className="space-y-10 h-screen">
       <div className="py-7 px-10 lg:flex items-center justify-between space-y-10 lg:space-y-0">
         <div className="space-y-3 font-bold ">
           <div className="text-4xl">appliance repair</div>

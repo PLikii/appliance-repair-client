@@ -26,6 +26,9 @@ function TodayOrders({ sidebar }) {
         headers: { Authorization: `Bearer ${localStorage.getItem("key")}` },
       })
       .then((res) => {
+        if (res.data.length === 0) {
+          return toast.success("Схоже немає замовлень");
+        }
         setOrders(res.data);
         if (width > 640) {
           if (id === "0")
@@ -49,12 +52,16 @@ function TodayOrders({ sidebar }) {
           {width < 1500 ? <BackHeader link="/technician/sidebar" /> : ""}
         </div>
 
-        <OrdersList
-          data={orders}
-          item={<OrdersItemTodayOrders link="/technician/todayOrders/" />}
-          link="http://localhost:5173/сreateOrder"
-          find={true}
-        />
+        {orders.length !== 0 ? (
+          <OrdersList
+            data={orders}
+            item={<OrdersItemTodayOrders link="/technician/todayOrders/" />}
+            link="http://localhost:5173/сreateOrder"
+            find={true}
+          />
+        ) : (
+          <div className=" text-3xl  pt-20 px-3">Схоже немає замовлень</div>
+        )}
       </div>
       <div className=" w-full">
         {orders.length !== 0 ? (

@@ -3,7 +3,7 @@ import React from "react";
 function ItemOrder({ data, link }) {
   return (
     <a
-      className=" w-[400px]"
+      className=" w-[390px]"
       href={`http://localhost:5173${link}${data._id.$oid}`}
     >
       <div className=" space-y-3 border-2 border-gray p-3 rounded-lg">

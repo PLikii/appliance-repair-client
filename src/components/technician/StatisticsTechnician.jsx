@@ -52,7 +52,7 @@ function StatisticsTechnician() {
             <div className=" text-yellow"> {stats.revenue}</div>
           </div>
           <div className=" flex space-x-3">
-            <div>Дохід:</div>
+            <div>Чистий дохід:</div>
             <div className=" text-h2"> {stats.revenue - stats.expenses}</div>
           </div>
         </div>
